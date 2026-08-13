@@ -55,6 +55,7 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
     }
 
     if (showTouchHint) setShowTouchHint(false);
+    soundEngine.playTap();
     onThrustStart();
 
     // Create a visual touch feedback ripple that disappears almost instantly (250ms)
@@ -101,40 +102,40 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
       ))}
 
       {/* Top Header Row */}
-      <div className="flex items-center justify-between w-full pointer-events-auto">
-        {/* Distance Traveled Continuous Counter (Fixed Height & Tabular Numbers) */}
-        <div className="flex items-center gap-2">
-          <div className="bg-slate-900/85 backdrop-blur-md border border-cyan-500/50 rounded-2xl h-10 sm:h-11 px-3.5 flex items-center justify-center gap-2 shadow-lg shadow-cyan-950/50 shrink-0 min-w-[130px] sm:min-w-[150px] whitespace-nowrap overflow-hidden">
-            <span className="text-[10px] font-bold text-cyan-400 tracking-wider uppercase font-game shrink-0">DISTANCE</span>
-            <span className="text-lg sm:text-xl font-black text-white font-display tabular-nums shrink-0">
-              {distance} <span className="text-xs font-semibold text-cyan-300">m</span>
+      <div className="flex items-center justify-between w-full pointer-events-auto gap-1 sm:gap-2">
+        {/* Distance Traveled Continuous Counter */}
+        <div className="flex items-center gap-1.5 shrink min-w-0">
+          <div className="bg-slate-900/85 backdrop-blur-md border border-cyan-500/50 rounded-xl sm:rounded-2xl h-9 sm:h-11 px-2.5 sm:px-3.5 flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg shadow-cyan-950/50 shrink min-w-0 max-w-[42vw] sm:max-w-none whitespace-nowrap overflow-hidden">
+            <span className="text-[9px] sm:text-[10px] font-bold text-cyan-400 tracking-wider uppercase font-game shrink-0">DIST</span>
+            <span className="text-sm sm:text-lg font-black text-white font-display tabular-nums shrink min-w-0 truncate">
+              {distance.toLocaleString()} <span className="text-[10px] sm:text-xs font-semibold text-cyan-300">m</span>
             </span>
           </div>
 
           {/* High Score Best */}
           {highScore > 0 && (
-            <div className="hidden sm:flex bg-slate-900/60 backdrop-blur-sm border border-amber-500/30 rounded-2xl h-10 sm:h-11 px-3 items-center justify-center gap-1 text-xs text-amber-300 shrink-0 whitespace-nowrap">
+            <div className="hidden md:flex bg-slate-900/60 backdrop-blur-sm border border-amber-500/30 rounded-2xl h-10 sm:h-11 px-3 items-center justify-center gap-1 text-xs text-amber-300 shrink-0 whitespace-nowrap">
               <span className="font-semibold font-game">BEST:</span>
-              <span className="font-bold font-display tabular-nums">{highScore} m</span>
+              <span className="font-bold font-display tabular-nums">{highScore.toLocaleString()} m</span>
             </div>
           )}
         </div>
 
         {/* CENTER STAGE BIG FLAPPY BIRD PIPE SCORE */}
-        <div className="flex flex-col items-center justify-center -mt-1">
-          <div className="text-4xl sm:text-5xl font-black text-amber-300 font-display tracking-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] border-amber-400 stroke-black">
+        <div className="flex flex-col items-center justify-center -mt-0.5 shrink-0 px-1">
+          <div className="text-3xl sm:text-5xl font-black text-amber-300 font-display tracking-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] tabular-nums">
             {score}
           </div>
-          <span className="text-[9px] font-black text-cyan-300/80 font-game tracking-widest uppercase -mt-1 drop-shadow-md">
-            PIPES PASSED
+          <span className="text-[8px] sm:text-[9px] font-black text-cyan-300/80 font-game tracking-widest uppercase -mt-1 drop-shadow-md whitespace-nowrap">
+            PIPES
           </span>
         </div>
 
         {/* Coins & Status Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Shield Status Badge */}
           {hasShield && (
-            <div className="hidden sm:flex bg-cyan-500/20 border border-cyan-400/60 rounded-xl px-2.5 py-1 flex items-center gap-1 text-cyan-300 animate-pulse">
+            <div className="hidden lg:flex bg-cyan-500/20 border border-cyan-400/60 rounded-xl px-2 py-1 items-center gap-1 text-cyan-300 animate-pulse">
               <Shield className="w-3.5 h-3.5 text-cyan-400" />
               <span className="text-[10px] font-bold font-game uppercase">SHIELD</span>
             </div>
@@ -142,16 +143,18 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
 
           {/* Magnet Status Badge */}
           {isMagnetActive && (
-            <div className="hidden sm:flex bg-purple-500/20 border border-purple-400/60 rounded-xl px-2.5 py-1 flex items-center gap-1 text-purple-300 animate-pulse">
+            <div className="hidden lg:flex bg-purple-500/20 border border-purple-400/60 rounded-xl px-2 py-1 items-center gap-1 text-purple-300 animate-pulse">
               <span className="text-xs">🧲</span>
               <span className="text-[10px] font-bold font-game uppercase">MAGNET</span>
             </div>
           )}
 
           {/* Coins Counter */}
-          <div className="bg-slate-900/85 backdrop-blur-md border border-amber-500/40 rounded-2xl h-10 sm:h-11 px-3 flex items-center gap-1.5 shadow-lg shrink-0">
-            <span className="text-amber-400 text-base">🪙</span>
-            <span className="text-base font-bold text-amber-200 font-display tabular-nums">{coins}</span>
+          <div className="bg-slate-900/85 backdrop-blur-md border border-amber-500/40 rounded-xl sm:rounded-2xl h-9 sm:h-11 px-2.5 sm:px-3 flex items-center gap-1 sm:gap-1.5 shadow-lg shrink-0 whitespace-nowrap">
+            <span className="text-amber-400 text-sm sm:text-base">🪙</span>
+            <span className="text-sm sm:text-base font-bold text-amber-200 font-display tabular-nums">
+              {coins.toLocaleString()}
+            </span>
           </div>
 
           {/* Pause Button */}
@@ -163,10 +166,10 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
               onPause();
             }}
             onPointerDown={(e) => e.stopPropagation()}
-            className="w-10 h-10 sm:w-11 sm:h-11 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-600 rounded-2xl text-white shadow-lg transition active:scale-95 pointer-events-auto cursor-pointer flex items-center justify-center shrink-0"
+            className="w-9 h-9 sm:w-11 sm:h-11 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-600 rounded-xl sm:rounded-2xl text-white shadow-lg transition active:scale-95 pointer-events-auto cursor-pointer flex items-center justify-center shrink-0"
             aria-label="Pause Game"
           >
-            <Pause className="w-5 h-5 text-cyan-300" />
+            <Pause className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-300" />
           </button>
         </div>
       </div>

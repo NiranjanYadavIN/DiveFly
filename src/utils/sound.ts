@@ -32,9 +32,35 @@ class SoundEngine {
 
   public setMusicEnabled(enabled: boolean) {
     this.musicEnabled = enabled;
-    if (!enabled && this.isBgmPlaying) {
+    if (!enabled) {
       this.stopAmbientBGM();
     }
+  }
+
+  // Quick crisp screen tap sound
+  public playTap() {
+    if (!this.soundEnabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(350, now);
+      osc.frequency.exponentialRampToValueAtTime(700, now + 0.07);
+
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.07);
+    } catch {}
   }
 
   // Button click
@@ -43,45 +69,50 @@ class SoundEngine {
     this.initCtx();
     if (!this.ctx) return;
 
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(440, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.05);
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.05);
 
-    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
 
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
 
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.05);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.05);
+    } catch {}
   }
 
-  // Submarine Thrust (Engine bubble hum)
+  // Submarine Thrust (Engine bubble hum + tap pop)
   public playThrust() {
     if (!this.soundEnabled) return;
     this.initCtx();
     if (!this.ctx) return;
 
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    
-    // Low bubble pitch with frequency modulation
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(110, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(180, this.ctx.currentTime + 0.12);
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      
+      // Low bubble pitch with frequency modulation
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.exponentialRampToValueAtTime(260, now + 0.1);
 
-    gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
 
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
 
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.12);
+      osc.start(now);
+      osc.stop(now + 0.1);
+    } catch {}
   }
 
   // Sonar Ping for Obstacle Passed
@@ -230,7 +261,8 @@ class SoundEngine {
 
   // Start background underwater ambient music loop
   public startAmbientBGM() {
-    if (!this.musicEnabled || this.isBgmPlaying) return;
+    this.stopAmbientBGM(); // Clean up any existing instance first
+    if (!this.musicEnabled) return;
     this.initCtx();
     if (!this.ctx) return;
 
@@ -314,27 +346,38 @@ class SoundEngine {
   }
 
   public stopAmbientBGM() {
-    if (this.bgmInterval) {
+    this.isBgmPlaying = false;
+
+    if (this.bgmInterval !== null) {
       clearInterval(this.bgmInterval);
       this.bgmInterval = null;
     }
-    if (this.bgmOsc1) {
-      try { this.bgmOsc1.stop(); } catch {}
-      this.bgmOsc1 = null;
+
+    if (this.bgmGain) {
+      try {
+        if (this.ctx) {
+          this.bgmGain.gain.setValueAtTime(0, this.ctx.currentTime);
+        } else {
+          this.bgmGain.gain.value = 0;
+        }
+        this.bgmGain.disconnect();
+      } catch {}
+      this.bgmGain = null;
     }
-    if (this.bgmOsc2) {
-      try { this.bgmOsc2.stop(); } catch {}
-      this.bgmOsc2 = null;
-    }
-    if (this.bgmOsc3) {
-      try { this.bgmOsc3.stop(); } catch {}
-      this.bgmOsc3 = null;
-    }
-    if (this.bgmLfo) {
-      try { this.bgmLfo.stop(); } catch {}
-      this.bgmLfo = null;
-    }
-    this.isBgmPlaying = false;
+
+    [this.bgmOsc1, this.bgmOsc2, this.bgmOsc3, this.bgmLfo].forEach((osc) => {
+      if (osc) {
+        try {
+          osc.stop();
+          osc.disconnect();
+        } catch {}
+      }
+    });
+
+    this.bgmOsc1 = null;
+    this.bgmOsc2 = null;
+    this.bgmOsc3 = null;
+    this.bgmLfo = null;
   }
 }
 

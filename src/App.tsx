@@ -45,6 +45,15 @@ export default function App() {
     soundEngine.setMusicEnabled(stats.musicEnabled);
   }, [stats.soundEnabled, stats.musicEnabled]);
 
+  // Manage BGM according to gameState and musicEnabled
+  useEffect(() => {
+    if (gameState === 'playing' && stats.musicEnabled) {
+      soundEngine.startAmbientBGM();
+    } else {
+      soundEngine.stopAmbientBGM();
+    }
+  }, [gameState, stats.musicEnabled]);
+
   // Selected submarine object
   const selectedSub = useMemo(() => {
     return DEFAULT_SUBMARINES.find((s) => s.id === stats.selectedSubId) || DEFAULT_SUBMARINES[0];
@@ -243,6 +252,7 @@ export default function App() {
           score={score}
           coins={runCoins}
           soundEnabled={stats.soundEnabled}
+          musicEnabled={stats.musicEnabled}
           onResume={() => setGameState('playing')}
           onRestart={startGame}
           onQuit={() => {
@@ -250,6 +260,7 @@ export default function App() {
             setGameState('menu');
           }}
           onToggleSound={handleToggleSound}
+          onToggleMusic={handleToggleMusic}
         />
       )}
 

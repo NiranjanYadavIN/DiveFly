@@ -1,25 +1,29 @@
 import React from 'react';
-import { Play, RotateCcw, Home, Volume2, VolumeX } from 'lucide-react';
+import { Play, RotateCcw, Home, Volume2, VolumeX, Music } from 'lucide-react';
 import { soundEngine } from '../utils/sound';
 
 interface PauseOverlayProps {
   score: number;
   coins: number;
   soundEnabled: boolean;
+  musicEnabled: boolean;
   onResume: () => void;
   onRestart: () => void;
   onQuit: () => void;
   onToggleSound: () => void;
+  onToggleMusic: () => void;
 }
 
 export const PauseOverlay: React.FC<PauseOverlayProps> = ({
   score,
   coins,
   soundEnabled,
+  musicEnabled,
   onResume,
   onRestart,
   onQuit,
   onToggleSound,
+  onToggleMusic,
 }) => {
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
@@ -74,10 +78,10 @@ export const PauseOverlay: React.FC<PauseOverlayProps> = ({
                 soundEngine.playClick();
                 onToggleSound();
               }}
-              className="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold font-game text-xs uppercase flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+              className="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold font-game text-[11px] uppercase flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
             >
-              {soundEnabled ? <Volume2 className="w-4 h-4 text-cyan-400" /> : <VolumeX className="w-4 h-4 text-rose-400" />}
-              {soundEnabled ? 'SOUND ON' : 'MUTED'}
+              {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-cyan-400" /> : <VolumeX className="w-3.5 h-3.5 text-rose-400" />}
+              {soundEnabled ? 'SFX ON' : 'SFX OFF'}
             </button>
 
             <button
@@ -85,13 +89,26 @@ export const PauseOverlay: React.FC<PauseOverlayProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 soundEngine.playClick();
-                onQuit();
+                onToggleMusic();
               }}
-              className="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold font-game text-xs uppercase flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+              className="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold font-game text-[11px] uppercase flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
             >
-              <Home className="w-4 h-4 text-slate-400" /> QUIT
+              <Music className={`w-3.5 h-3.5 ${musicEnabled ? 'text-amber-400' : 'text-slate-500'}`} />
+              {musicEnabled ? 'BGM ON' : 'BGM OFF'}
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              soundEngine.playClick();
+              onQuit();
+            }}
+            className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold font-game text-xs uppercase flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+          >
+            <Home className="w-4 h-4 text-slate-400" /> QUIT TO MENU
+          </button>
         </div>
       </div>
     </div>
