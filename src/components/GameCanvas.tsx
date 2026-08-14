@@ -47,7 +47,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     subVy: 0,
     subAngle: 0,
     wasThrusting: false,
-    shields: 0, // Always start at 0; protected layer is earned by collecting Shield Orbs (🛡️) in-game!
+    shields: 0, // Protected layer is earned by collecting Shield Orbs (🛡️) in-game
+    shieldTimer: 0, // Shield expires after a fixed time duration
     sonicCharge: 0, // 0 to 100%
     isSonicActive: false,
     sonicWaveRadius: 0,
@@ -91,6 +92,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       subAngle: 0,
       wasThrusting: false,
       shields: 0, // Always start fresh with 0 shields
+      shieldTimer: 0,
       sonicCharge: 0,
       isSonicActive: false,
       sonicWaveRadius: 0,
@@ -395,7 +397,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           engine.score,
           engine.combo,
           engine.coins,
-          engine.shields > 0,
+          engine.shields > 0 || engine.shieldTimer > 0,
           engine.sonicCharge,
           Math.floor(engine.distanceMeters),
           engine.magnetTimer > 0
@@ -406,6 +408,14 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           engine.sonicWaveRadius += 18;
           if (engine.sonicWaveRadius > width * 1.3) {
             engine.isSonicActive = false;
+          }
+        }
+
+        // --- SHIELD TIMER (Temporary Protection Duration) ---
+        if (engine.shieldTimer > 0) {
+          engine.shieldTimer--;
+          if (engine.shieldTimer === 0) {
+            engine.shields = 0;
           }
         }
 
@@ -471,6 +481,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             } else if (engine.score < 10) {
               if (rand < 0.55) obstacleType = 'green_pipe';
               else if (rand < 0.80) obstacleType = 'moving_pipe';
+              else if (rand < 0.90) obstacleType = 'coral';
               else obstacleType = 'coral';
             } else {
               if (rand < 0.35) obstacleType = 'green_pipe';
@@ -508,7 +519,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
           const shieldThreshold = Math.max(0.85, (isHighSpeed ? 0.90 : 0.95) - shieldBonusThreshold);
           
           // Shield can ONLY spawn if player does NOT currently have a shield active (max 1 shield rule)!
-          if (engine.shields < 1 && randType > shieldThreshold) cType = 'shield';
+          if (engine.shields < 1 && engine.shieldTimer <= 0 && randType > shieldThreshold) cType = 'shield';
           else if (randType > (isHighSpeed ? 0.85 : 0.91)) cType = 'magnet';  // Up to 5% chance for Magnet
           else if (randType > (isHighSpeed ? 0.81 : 0.88)) cType = 'sonic';   // Up to 4% chance for Sonic Blast item
           else if (randType > 0.42) cType = 'pearl';   // Pearl!
@@ -577,8 +588,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
               }
 
               if (collided) {
-                if (engine.shields > 0) {
-                  engine.shields--;
+                if (engine.shields > 0 || engine.shieldTimer > 0) {
+                  engine.shields = 0;
+                  engine.shieldTimer = 0;
                   obs.passed = true;
                   obs.x = -200;
                   soundEngine.playShieldHit();
@@ -658,6 +670,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
                 soundEngine.playCoin();
               } else if (item.type === 'shield') {
                 engine.shields = 1; // Strictly cap at max 1 active shield (no stacking)
+                engine.shieldTimer = 480; // 8 seconds duration at 60FPS
                 soundEngine.playPowerup();
               } else if (item.type === 'magnet') {
                 engine.magnetTimer = 360;
@@ -976,16 +989,20 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       ctx.closePath();
       ctx.fill();
 
-      // Shield Bubble Aura
-      if (engine.shields > 0) {
-        ctx.strokeStyle = engine.frame % 20 < 10 ? '#38bdf8' : '#7dd3fc';
-        ctx.lineWidth = 3.5;
-        ctx.shadowColor = '#0284c7';
-        ctx.shadowBlur = 14;
-        ctx.beginPath();
-        ctx.arc(2, 0, 36, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.shadowBlur = 0;
+      // Shield Bubble Aura with Warning Blink when Expiring (<90 frames / 1.5s remaining)
+      if (engine.shields > 0 || engine.shieldTimer > 0) {
+        const isExpiring = engine.shieldTimer > 0 && engine.shieldTimer < 90;
+        const isBlinking = isExpiring && Math.floor(engine.frame / 4) % 2 === 0;
+        if (!isBlinking) {
+          ctx.strokeStyle = engine.frame % 20 < 10 ? '#38bdf8' : '#7dd3fc';
+          ctx.lineWidth = 3.5;
+          ctx.shadowColor = '#0284c7';
+          ctx.shadowBlur = 14;
+          ctx.beginPath();
+          ctx.arc(2, 0, 36, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
       }
 
       // Magnet Magnetic Field Aura

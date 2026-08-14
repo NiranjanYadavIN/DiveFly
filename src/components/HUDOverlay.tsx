@@ -135,17 +135,17 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Shield Status Badge */}
           {hasShield && (
-            <div className="hidden lg:flex bg-cyan-500/20 border border-cyan-400/60 rounded-xl px-2 py-1 items-center gap-1 text-cyan-300 animate-pulse">
-              <Shield className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-[10px] font-bold font-game uppercase">SHIELD</span>
+            <div className="flex bg-cyan-500/20 border border-cyan-400/60 rounded-lg sm:rounded-xl px-1.5 sm:px-2 py-0.5 sm:py-1 items-center gap-1 text-cyan-300 animate-pulse">
+              <Shield className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-cyan-400" />
+              <span className="text-[8px] sm:text-[10px] font-bold font-game uppercase">SHIELD</span>
             </div>
           )}
 
           {/* Magnet Status Badge */}
           {isMagnetActive && (
-            <div className="hidden lg:flex bg-purple-500/20 border border-purple-400/60 rounded-xl px-2 py-1 items-center gap-1 text-purple-300 animate-pulse">
-              <span className="text-xs">🧲</span>
-              <span className="text-[10px] font-bold font-game uppercase">MAGNET</span>
+            <div className="flex bg-purple-500/20 border border-purple-400/60 rounded-lg sm:rounded-xl px-1.5 sm:px-2 py-0.5 sm:py-1 items-center gap-1 text-purple-300 animate-pulse">
+              <span className="text-[10px] sm:text-xs">🧲</span>
+              <span className="text-[8px] sm:text-[10px] font-bold font-game uppercase">MAGNET</span>
             </div>
           )}
 
