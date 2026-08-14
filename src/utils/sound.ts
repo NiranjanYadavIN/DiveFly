@@ -1,12 +1,11 @@
 // Web Audio API Synth Engine for DiveFly
 class SoundEngine {
   private ctx: AudioContext | null = null;
-  private bgmOsc1: OscillatorNode | null = null;
-  private bgmOsc2: OscillatorNode | null = null;
-  private bgmOsc3: OscillatorNode | null = null;
-  private bgmLfo: OscillatorNode | null = null;
-  private bgmGain: GainNode | null = null;
-  private bgmInterval: number | null = null;
+  private bgmMasterGain: GainNode | null = null;
+  private bgmFilter: BiquadFilterNode | null = null;
+  private nextNoteTime = 0;
+  private currentStep = 0;
+  private scheduleTimer: number | null = null;
   private isBgmPlaying = false;
 
   private soundEnabled = true;
@@ -259,7 +258,7 @@ class SoundEngine {
     osc.stop(now + 0.5);
   }
 
-  // Start background underwater ambient music loop
+  // Start background joyful, upbeat underwater arcade music loop
   public startAmbientBGM() {
     this.stopAmbientBGM(); // Clean up any existing instance first
     if (!this.musicEnabled) return;
@@ -270,75 +269,151 @@ class SoundEngine {
       this.isBgmPlaying = true;
       const now = this.ctx.currentTime;
 
-      // Lowpass Filter for authentic underwater damping
-      const filter = this.ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(450, now);
+      // Master BGM Gain & Warm Lowpass Filter (keeps sound smooth, warm & pleasant)
+      this.bgmFilter = this.ctx.createBiquadFilter();
+      this.bgmFilter.type = 'lowpass';
+      this.bgmFilter.frequency.setValueAtTime(2600, now);
 
-      // Main Chord Nodes (A2 = 110Hz, E3 = 164.81Hz, C#4 = 277.18Hz) - Audible on all speakers
-      this.bgmOsc1 = this.ctx.createOscillator();
-      this.bgmOsc1.type = 'triangle';
-      this.bgmOsc1.frequency.setValueAtTime(110, now);
+      this.bgmMasterGain = this.ctx.createGain();
+      this.bgmMasterGain.gain.setValueAtTime(0.001, now);
+      // Gentle fade in so the music starts comfortably
+      this.bgmMasterGain.gain.exponentialRampToValueAtTime(0.12, now + 0.4);
 
-      this.bgmOsc2 = this.ctx.createOscillator();
-      this.bgmOsc2.type = 'sine';
-      this.bgmOsc2.frequency.setValueAtTime(164.81, now);
+      this.bgmFilter.connect(this.bgmMasterGain);
+      this.bgmMasterGain.connect(this.ctx.destination);
 
-      this.bgmOsc3 = this.ctx.createOscillator();
-      this.bgmOsc3.type = 'sine';
-      this.bgmOsc3.frequency.setValueAtTime(277.18, now);
+      // Web Audio Lookahead Step Scheduler
+      this.nextNoteTime = this.ctx.currentTime + 0.05;
+      this.currentStep = 0;
 
-      // LFO for slow 0.25Hz ocean wave swell
-      this.bgmLfo = this.ctx.createOscillator();
-      this.bgmLfo.type = 'sine';
-      this.bgmLfo.frequency.setValueAtTime(0.25, now);
+      // 32-step cheerful aquatic melody (Tempo: 120 BPM, step = 0.125s)
+      const stepDuration = 0.125;
 
-      const lfoGain = this.ctx.createGain();
-      lfoGain.gain.setValueAtTime(0.04, now);
+      // Joyful, catchy tropical/oceanic lead melody (C Major -> G Major -> A Minor -> F Major)
+      const melodyNotes = [
+        // Measure 1: C Major (Bouncy playful opening)
+        523.25, 0, 659.25, 783.99,  1046.5, 0, 783.99, 659.25,
+        // Measure 2: G Major (Playful rhythmic bounce)
+        587.33, 0, 783.99, 880.00,  987.77, 880.00, 783.99, 0,
+        // Measure 3: A Minor (Sweet oceanic flow)
+        440.00, 0, 523.25, 659.25,  880.00, 0, 783.99, 659.25,
+        // Measure 4: F Major (Uplifting resolution)
+        349.23, 523.25, 659.25, 783.99,  880.00, 783.99, 659.25, 523.25
+      ];
 
-      this.bgmGain = this.ctx.createGain();
-      this.bgmGain.gain.setValueAtTime(0.08, now);
+      // Warm acoustic-style rhythmic bassline (soft, bouncy, no heavy rumbling)
+      const bassNotes = [
+        // C
+        130.81, 0, 0, 0, 196.00, 0, 130.81, 0,
+        // G
+        98.00, 0, 0, 0, 146.83, 0, 98.00, 0,
+        // A
+        110.00, 0, 0, 0, 164.81, 0, 110.00, 0,
+        // F
+        87.31, 0, 0, 0, 130.81, 0, 174.61, 0
+      ];
 
-      // Connect LFO to gain for organic breathing effect
-      this.bgmLfo.connect(lfoGain);
-      lfoGain.connect(this.bgmGain.gain);
+      // Sparkling high ocean bubble chimes
+      const sparkleNotes = [
+        1046.5, 0, 1318.5, 0, 1567.98, 0, 1318.5, 0,
+        1174.66, 0, 1567.98, 0, 1760.00, 0, 1567.98, 0,
+        880.00, 0, 1046.5, 0, 1318.5, 0, 1046.5, 0,
+        698.46, 0, 1046.5, 0, 1318.5, 0, 1567.98, 0
+      ];
 
-      this.bgmOsc1.connect(filter);
-      this.bgmOsc2.connect(filter);
-      this.bgmOsc3.connect(filter);
-      filter.connect(this.bgmGain);
-      this.bgmGain.connect(this.ctx.destination);
+      const scheduleStep = () => {
+        if (!this.isBgmPlaying || !this.ctx || !this.musicEnabled || !this.bgmFilter) return;
 
-      this.bgmOsc1.start(now);
-      this.bgmOsc2.start(now);
-      this.bgmOsc3.start(now);
-      this.bgmLfo.start(now);
+        const scheduleAheadTime = 0.25;
+        while (this.nextNoteTime < this.ctx.currentTime + scheduleAheadTime) {
+          const step = this.currentStep % 32;
+          const t = this.nextNoteTime;
 
-      // Periodic underwater pentatonic melody notes
-      const notes = [440, 554.37, 659.25, 880, 659.25, 554.37];
-      let noteIdx = 0;
+          // 1. Play Lead Marimba / Aquatic Pluck
+          const melodyFreq = melodyNotes[step];
+          if (melodyFreq > 0) {
+            const osc = this.ctx.createOscillator();
+            const noteGain = this.ctx.createGain();
 
-      this.bgmInterval = window.setInterval(() => {
-        if (!this.isBgmPlaying || !this.ctx || !this.musicEnabled) return;
-        try {
-          const t = this.ctx.currentTime;
-          const osc = this.ctx.createOscillator();
-          const noteGain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(melodyFreq, t);
+            osc.frequency.exponentialRampToValueAtTime(melodyFreq * 1.01, t + 0.02);
+            osc.frequency.exponentialRampToValueAtTime(melodyFreq, t + 0.08);
 
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(notes[noteIdx % notes.length], t);
-          noteIdx++;
+            noteGain.gain.setValueAtTime(0.08, t);
+            noteGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
 
-          noteGain.gain.setValueAtTime(0.035, t);
-          noteGain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+            osc.connect(noteGain);
+            noteGain.connect(this.bgmFilter);
 
-          osc.connect(noteGain);
-          noteGain.connect(filter);
+            osc.start(t);
+            osc.stop(t + 0.18);
+          }
 
-          osc.start(t);
-          osc.stop(t + 1.2);
-        } catch {}
-      }, 2200);
+          // 2. Play Bouncy Bass Note
+          const bassFreq = bassNotes[step];
+          if (bassFreq > 0) {
+            const bassOsc = this.ctx.createOscillator();
+            const bassGain = this.ctx.createGain();
+
+            bassOsc.type = 'triangle';
+            bassOsc.frequency.setValueAtTime(bassFreq, t);
+
+            bassGain.gain.setValueAtTime(0.09, t);
+            bassGain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+
+            bassOsc.connect(bassGain);
+            bassGain.connect(this.bgmFilter);
+
+            bassOsc.start(t);
+            bassOsc.stop(t + 0.2);
+          }
+
+          // 3. Play Light Ocean Sparkle (every 2nd beat offbeat)
+          const sparkleFreq = sparkleNotes[step];
+          if (sparkleFreq > 0 && step % 4 === 2) {
+            const sparkOsc = this.ctx.createOscillator();
+            const sparkGain = this.ctx.createGain();
+
+            sparkOsc.type = 'sine';
+            sparkOsc.frequency.setValueAtTime(sparkleFreq, t);
+
+            sparkGain.gain.setValueAtTime(0.03, t);
+            sparkGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+
+            sparkOsc.connect(sparkGain);
+            sparkGain.connect(this.bgmFilter);
+
+            sparkOsc.start(t);
+            sparkOsc.stop(t + 0.25);
+          }
+
+          // 4. Soft rhythmic bubble shaker (every upbeat)
+          if (step % 2 === 1) {
+            const clickOsc = this.ctx.createOscillator();
+            const clickGain = this.ctx.createGain();
+
+            clickOsc.type = 'sine';
+            clickOsc.frequency.setValueAtTime(1800, t);
+            clickOsc.frequency.exponentialRampToValueAtTime(3200, t + 0.02);
+
+            clickGain.gain.setValueAtTime(0.015, t);
+            clickGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+
+            clickOsc.connect(clickGain);
+            clickGain.connect(this.bgmFilter);
+
+            clickOsc.start(t);
+            clickOsc.stop(t + 0.035);
+          }
+
+          this.nextNoteTime += stepDuration;
+          this.currentStep++;
+        }
+      };
+
+      // Run scheduler smoothly
+      this.scheduleTimer = window.setInterval(scheduleStep, 40);
 
     } catch {
       this.isBgmPlaying = false;
@@ -348,36 +423,33 @@ class SoundEngine {
   public stopAmbientBGM() {
     this.isBgmPlaying = false;
 
-    if (this.bgmInterval !== null) {
-      clearInterval(this.bgmInterval);
-      this.bgmInterval = null;
+    if (this.scheduleTimer !== null) {
+      clearInterval(this.scheduleTimer);
+      this.scheduleTimer = null;
     }
 
-    if (this.bgmGain) {
+    if (this.bgmMasterGain && this.ctx) {
       try {
-        if (this.ctx) {
-          this.bgmGain.gain.setValueAtTime(0, this.ctx.currentTime);
-        } else {
-          this.bgmGain.gain.value = 0;
-        }
-        this.bgmGain.disconnect();
-      } catch {}
-      this.bgmGain = null;
-    }
-
-    [this.bgmOsc1, this.bgmOsc2, this.bgmOsc3, this.bgmLfo].forEach((osc) => {
-      if (osc) {
-        try {
-          osc.stop();
-          osc.disconnect();
-        } catch {}
+        const now = this.ctx.currentTime;
+        this.bgmMasterGain.gain.cancelScheduledValues(now);
+        this.bgmMasterGain.gain.setValueAtTime(this.bgmMasterGain.gain.value, now);
+        this.bgmMasterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+        setTimeout(() => {
+          try {
+            this.bgmMasterGain?.disconnect();
+            this.bgmFilter?.disconnect();
+          } catch {}
+          this.bgmMasterGain = null;
+          this.bgmFilter = null;
+        }, 120);
+      } catch {
+        this.bgmMasterGain = null;
+        this.bgmFilter = null;
       }
-    });
-
-    this.bgmOsc1 = null;
-    this.bgmOsc2 = null;
-    this.bgmOsc3 = null;
-    this.bgmLfo = null;
+    } else {
+      this.bgmMasterGain = null;
+      this.bgmFilter = null;
+    }
   }
 }
 
