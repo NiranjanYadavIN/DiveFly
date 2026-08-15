@@ -54,16 +54,16 @@ class SoundEngine {
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(350, now);
-      osc.frequency.exponentialRampToValueAtTime(700, now + 0.07);
+      osc.frequency.exponentialRampToValueAtTime(700, now + 0.06);
 
-      gain.gain.setValueAtTime(0.2, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
       osc.start(now);
-      osc.stop(now + 0.07);
+      osc.stop(now + 0.06);
     } catch {}
   }
 
@@ -81,8 +81,8 @@ class SoundEngine {
       osc.frequency.setValueAtTime(440, this.ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.05);
 
-      gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.05);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
@@ -92,7 +92,7 @@ class SoundEngine {
     } catch {}
   }
 
-  // Submarine Thrust (Engine bubble hum + tap pop)
+  // Submarine Thrust (Engine bubble hum + tap pop) - soft, pleasant, non-intrusive
   public playThrust() {
     if (!this.soundEnabled) return;
     this.initCtx();
@@ -103,19 +103,18 @@ class SoundEngine {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       
-      // Low bubble pitch with frequency modulation
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(140, now);
-      osc.frequency.exponentialRampToValueAtTime(260, now + 0.1);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(130, now);
+      osc.frequency.exponentialRampToValueAtTime(220, now + 0.08);
 
-      gain.gain.setValueAtTime(0.18, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      gain.gain.setValueAtTime(0.07, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
       osc.start(now);
-      osc.stop(now + 0.1);
+      osc.stop(now + 0.08);
     } catch {}
   }
 
@@ -133,17 +132,17 @@ class SoundEngine {
     osc.frequency.setValueAtTime(1046.5, now); // C6 note
     osc.frequency.exponentialRampToValueAtTime(1318.5, now + 0.08); // E6
 
-    gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    gain.gain.setValueAtTime(0.09, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
     osc.start(now);
-    osc.stop(now + 0.35);
+    osc.stop(now + 0.3);
   }
 
-  // Coin / Pearl Pickup
+  // Coin / Pearl Pickup (Crisp sweet chime)
   public playCoin() {
     if (!this.soundEnabled) return;
     this.initCtx();
@@ -155,16 +154,16 @@ class SoundEngine {
 
     osc.type = 'sine';
     osc.frequency.setValueAtTime(987.77, now); // B5
-    osc.frequency.setValueAtTime(1318.5, now + 0.06); // E6
+    osc.frequency.setValueAtTime(1318.5, now + 0.05); // E6
 
-    gain.gain.setValueAtTime(0.18, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+    gain.gain.setValueAtTime(0.09, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
     osc.start(now);
-    osc.stop(now + 0.2);
+    osc.stop(now + 0.18);
   }
 
   // Powerup Pickup
@@ -177,18 +176,18 @@ class SoundEngine {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(300, now);
-    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.25);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(350, now);
+    osc.frequency.exponentialRampToValueAtTime(1100, now + 0.22);
 
-    gain.gain.setValueAtTime(0.1, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    gain.gain.setValueAtTime(0.09, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
     osc.start(now);
-    osc.stop(now + 0.25);
+    osc.stop(now + 0.22);
   }
 
   // Sonic Wave Blast Triggered
@@ -201,18 +200,18 @@ class SoundEngine {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(600, now);
-    osc.frequency.exponentialRampToValueAtTime(80, now + 0.4);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(500, now);
+    osc.frequency.exponentialRampToValueAtTime(90, now + 0.35);
 
-    gain.gain.setValueAtTime(0.25, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    gain.gain.setValueAtTime(0.14, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
     osc.start(now);
-    osc.stop(now + 0.4);
+    osc.stop(now + 0.35);
   }
 
   // Shield hit deflection
@@ -225,18 +224,18 @@ class SoundEngine {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(500, now);
-    osc.frequency.exponentialRampToValueAtTime(150, now + 0.2);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(450, now);
+    osc.frequency.exponentialRampToValueAtTime(180, now + 0.18);
 
-    gain.gain.setValueAtTime(0.3, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
     osc.start(now);
-    osc.stop(now + 0.2);
+    osc.stop(now + 0.18);
   }
 
   // Crash / Game Over
@@ -249,18 +248,18 @@ class SoundEngine {
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(180, now);
-    osc.frequency.exponentialRampToValueAtTime(30, now + 0.5);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(200, now);
+    osc.frequency.exponentialRampToValueAtTime(40, now + 0.4);
 
-    gain.gain.setValueAtTime(0.35, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
     osc.start(now);
-    osc.stop(now + 0.5);
+    osc.stop(now + 0.4);
   }
 
   // Start background joyful, upbeat underwater arcade music loop
@@ -285,12 +284,12 @@ class SoundEngine {
       // Master BGM Gain & Warm Lowpass Filter (keeps sound smooth, warm & pleasant)
       this.bgmFilter = audioCtx.createBiquadFilter();
       this.bgmFilter.type = 'lowpass';
-      this.bgmFilter.frequency.setValueAtTime(2600, now);
+      this.bgmFilter.frequency.setValueAtTime(3600, now);
 
       this.bgmMasterGain = audioCtx.createGain();
       this.bgmMasterGain.gain.setValueAtTime(0.001, now);
-      // Gentle fade in so the music starts comfortably
-      this.bgmMasterGain.gain.exponentialRampToValueAtTime(0.12, now + 0.3);
+      // Gentle fade in to clear, full volume
+      this.bgmMasterGain.gain.exponentialRampToValueAtTime(0.28, now + 0.3);
 
       this.bgmFilter.connect(this.bgmMasterGain);
       this.bgmMasterGain.connect(audioCtx.destination);
@@ -314,7 +313,7 @@ class SoundEngine {
         349.23, 523.25, 659.25, 783.99,  880.00, 783.99, 659.25, 523.25
       ];
 
-      // Warm acoustic-style rhythmic bassline (soft, bouncy, no heavy rumbling)
+      // Warm acoustic-style rhythmic bassline (soft, bouncy, punchy)
       const bassNotes = [
         // C
         130.81, 0, 0, 0, 196.00, 0, 130.81, 0,
@@ -342,7 +341,7 @@ class SoundEngine {
           const step = this.currentStep % 32;
           const t = this.nextNoteTime;
 
-          // 1. Play Lead Marimba / Aquatic Pluck
+          // 1. Play Lead Marimba / Aquatic Pluck (clear, melodious)
           const melodyFreq = melodyNotes[step];
           if (melodyFreq > 0) {
             const osc = this.ctx.createOscillator();
@@ -353,17 +352,17 @@ class SoundEngine {
             osc.frequency.exponentialRampToValueAtTime(melodyFreq * 1.01, t + 0.02);
             osc.frequency.exponentialRampToValueAtTime(melodyFreq, t + 0.08);
 
-            noteGain.gain.setValueAtTime(0.08, t);
-            noteGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+            noteGain.gain.setValueAtTime(0.18, t);
+            noteGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
 
             osc.connect(noteGain);
             noteGain.connect(this.bgmFilter);
 
             osc.start(t);
-            osc.stop(t + 0.18);
+            osc.stop(t + 0.2);
           }
 
-          // 2. Play Bouncy Bass Note
+          // 2. Play Bouncy Bass Note (warm punchy rhythm)
           const bassFreq = bassNotes[step];
           if (bassFreq > 0) {
             const bassOsc = this.ctx.createOscillator();
@@ -372,14 +371,14 @@ class SoundEngine {
             bassOsc.type = 'triangle';
             bassOsc.frequency.setValueAtTime(bassFreq, t);
 
-            bassGain.gain.setValueAtTime(0.09, t);
-            bassGain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+            bassGain.gain.setValueAtTime(0.16, t);
+            bassGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
 
             bassOsc.connect(bassGain);
             bassGain.connect(this.bgmFilter);
 
             bassOsc.start(t);
-            bassOsc.stop(t + 0.2);
+            bassOsc.stop(t + 0.22);
           }
 
           // 3. Play Light Ocean Sparkle (every 2nd beat offbeat)
@@ -391,14 +390,14 @@ class SoundEngine {
             sparkOsc.type = 'sine';
             sparkOsc.frequency.setValueAtTime(sparkleFreq, t);
 
-            sparkGain.gain.setValueAtTime(0.03, t);
-            sparkGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+            sparkGain.gain.setValueAtTime(0.08, t);
+            sparkGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
 
             sparkOsc.connect(sparkGain);
             sparkGain.connect(this.bgmFilter);
 
             sparkOsc.start(t);
-            sparkOsc.stop(t + 0.25);
+            sparkOsc.stop(t + 0.28);
           }
 
           // 4. Soft rhythmic bubble shaker (every upbeat)
@@ -410,7 +409,7 @@ class SoundEngine {
             clickOsc.frequency.setValueAtTime(1800, t);
             clickOsc.frequency.exponentialRampToValueAtTime(3200, t + 0.02);
 
-            clickGain.gain.setValueAtTime(0.015, t);
+            clickGain.gain.setValueAtTime(0.03, t);
             clickGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
 
             clickOsc.connect(clickGain);
