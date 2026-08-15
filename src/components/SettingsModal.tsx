@@ -63,8 +63,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="flex items-center gap-3">
               <Music className={`w-5 h-5 ${stats.musicEnabled ? 'text-amber-400' : 'text-slate-500'}`} />
               <div className="text-left">
-                <div className="font-bold font-display text-sm">UNDERWATER BGM</div>
-                <div className="text-[11px] text-slate-400">Ambient hydro-drone synth melody</div>
+                <div className="font-bold font-display text-sm">OCEAN BGM</div>
+                <div className="text-[11px] text-slate-400">Upbeat aquatic arcade melody</div>
               </div>
             </div>
             <button

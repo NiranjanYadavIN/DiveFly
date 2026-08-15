@@ -15,14 +15,19 @@ class SoundEngine {
     // Lazy init audio context on first user interaction
   }
 
-  private initCtx() {
-    if (!this.ctx) {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      this.ctx = new AudioCtx();
-    }
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
+  public initCtx(): AudioContext | null {
+    try {
+      if (!this.ctx) {
+        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (AudioCtx) {
+          this.ctx = new AudioCtx();
+        }
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+    } catch {}
+    return this.ctx;
   }
 
   public setSoundEnabled(enabled: boolean) {
@@ -262,28 +267,36 @@ class SoundEngine {
   public startAmbientBGM() {
     this.stopAmbientBGM(); // Clean up any existing instance first
     if (!this.musicEnabled) return;
-    this.initCtx();
-    if (!this.ctx) return;
+    const audioCtx = this.initCtx();
+    if (!audioCtx) return;
+
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume().then(() => {
+        if (this.musicEnabled && !this.isBgmPlaying) {
+          this.startAmbientBGM();
+        }
+      }).catch(() => {});
+    }
 
     try {
       this.isBgmPlaying = true;
-      const now = this.ctx.currentTime;
+      const now = audioCtx.currentTime;
 
       // Master BGM Gain & Warm Lowpass Filter (keeps sound smooth, warm & pleasant)
-      this.bgmFilter = this.ctx.createBiquadFilter();
+      this.bgmFilter = audioCtx.createBiquadFilter();
       this.bgmFilter.type = 'lowpass';
       this.bgmFilter.frequency.setValueAtTime(2600, now);
 
-      this.bgmMasterGain = this.ctx.createGain();
+      this.bgmMasterGain = audioCtx.createGain();
       this.bgmMasterGain.gain.setValueAtTime(0.001, now);
       // Gentle fade in so the music starts comfortably
-      this.bgmMasterGain.gain.exponentialRampToValueAtTime(0.12, now + 0.4);
+      this.bgmMasterGain.gain.exponentialRampToValueAtTime(0.12, now + 0.3);
 
       this.bgmFilter.connect(this.bgmMasterGain);
-      this.bgmMasterGain.connect(this.ctx.destination);
+      this.bgmMasterGain.connect(audioCtx.destination);
 
       // Web Audio Lookahead Step Scheduler
-      this.nextNoteTime = this.ctx.currentTime + 0.05;
+      this.nextNoteTime = audioCtx.currentTime + 0.02;
       this.currentStep = 0;
 
       // 32-step cheerful aquatic melody (Tempo: 120 BPM, step = 0.125s)
@@ -430,26 +443,30 @@ class SoundEngine {
 
     if (this.bgmMasterGain && this.ctx) {
       try {
+        const gainNode = this.bgmMasterGain;
+        const filterNode = this.bgmFilter;
         const now = this.ctx.currentTime;
-        this.bgmMasterGain.gain.cancelScheduledValues(now);
-        this.bgmMasterGain.gain.setValueAtTime(this.bgmMasterGain.gain.value, now);
-        this.bgmMasterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
+        gainNode.gain.cancelScheduledValues(now);
+        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
         setTimeout(() => {
           try {
-            this.bgmMasterGain?.disconnect();
-            this.bgmFilter?.disconnect();
+            gainNode.disconnect();
+            filterNode?.disconnect();
           } catch {}
-          this.bgmMasterGain = null;
-          this.bgmFilter = null;
-        }, 120);
-      } catch {
-        this.bgmMasterGain = null;
-        this.bgmFilter = null;
-      }
+        }, 90);
+      } catch {}
+      this.bgmMasterGain = null;
+      this.bgmFilter = null;
     } else {
       this.bgmMasterGain = null;
       this.bgmFilter = null;
     }
+  }
+
+  // Ensure AudioContext is active upon any tap/key/click
+  public resumeAudio() {
+    this.initCtx();
   }
 }
 

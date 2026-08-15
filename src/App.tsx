@@ -49,7 +49,7 @@ export default function App() {
   useEffect(() => {
     if (gameState === 'playing' && stats.musicEnabled) {
       soundEngine.startAmbientBGM();
-    } else {
+    } else if (gameState !== 'playing') {
       soundEngine.stopAmbientBGM();
     }
   }, [gameState, stats.musicEnabled]);
@@ -64,6 +64,7 @@ export default function App() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space' || e.code === 'ArrowUp') {
         e.preventDefault();
+        soundEngine.resumeAudio();
         if (gameState === 'playing') {
           setIsThrusting(true);
         } else if (gameState === 'menu') {
@@ -90,10 +91,11 @@ export default function App() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [gameState, sonicCharge]);
+  }, [gameState, sonicCharge, stats.musicEnabled]);
 
   // Start a new DiveFly game run
   const startGame = () => {
+    soundEngine.resumeAudio();
     setScore(0);
     setDistance(0);
     setRunCoins(0);
@@ -106,10 +108,6 @@ export default function App() {
     setTriggerSonicWave(false);
     setGameId((prev) => prev + 1);
     setGameState('playing');
-
-    if (stats.musicEnabled) {
-      soundEngine.startAmbientBGM();
-    }
   };
 
   // Live score updates from GameCanvas engine
