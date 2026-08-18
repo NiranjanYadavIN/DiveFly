@@ -26,12 +26,12 @@ export const SubHangarModal: React.FC<SubHangarModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <div>
-            <h2 className="text-2xl font-black font-game text-cyan-400">SUBMARINE HANGAR</h2>
-            <p className="text-xs text-slate-400 font-display">Upgrade your fleet with coin rewards</p>
+            <h2 className="text-2xl font-black font-game text-amber-300">SUB GARAGE 🚤</h2>
+            <p className="text-xs text-slate-300 font-display">Collect shiny pearls to get cool subs!</p>
           </div>
           <button
             onClick={() => {
-              soundEngine.playClick();
+              soundEngine.playBubblePop();
               onClose();
             }}
             className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400 hover:text-white transition"
@@ -41,9 +41,9 @@ export const SubHangarModal: React.FC<SubHangarModalProps> = ({
         </div>
 
         {/* Total Coins Header */}
-        <div className="my-4 bg-slate-950/60 border border-amber-500/30 rounded-2xl p-3 flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-400 font-game uppercase">AVAILABLE COINS</span>
-          <div className="flex items-center gap-1.5 text-amber-300 font-bold font-display text-lg">
+        <div className="my-4 bg-slate-950/80 border-2 border-amber-400/50 rounded-2xl p-3 flex items-center justify-between">
+          <span className="text-xs font-black text-amber-300 font-game uppercase">YOUR SHINY PEARLS</span>
+          <div className="flex items-center gap-1.5 text-amber-300 font-black font-display text-xl">
             <span>🪙</span>
             <span>{stats.totalCoins}</span>
           </div>

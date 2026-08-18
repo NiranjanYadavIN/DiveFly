@@ -3,12 +3,12 @@ import { SubmarineConfig, Achievement } from '../types';
 export const DEFAULT_SUBMARINES: SubmarineConfig[] = [
   {
     id: 'nautilus',
-    name: 'Yellow Nautilus',
-    description: 'Classic yellow explorer sub. Reliable and balanced handling.',
+    name: 'Sunny Sub 💛',
+    description: 'The cheerful yellow explorer! Super smooth, friendly, and easy to steer.',
     cost: 0,
     unlocked: true,
-    color: '#eab308', // Yellow
-    secondaryColor: '#ca8a04',
+    color: '#fbbf24', // Sunny Bright Yellow
+    secondaryColor: '#d97706',
     accentColor: '#38bdf8',
     stats: {
       speed: 3,
@@ -19,12 +19,12 @@ export const DEFAULT_SUBMARINES: SubmarineConfig[] = [
   },
   {
     id: 'kraken',
-    name: 'Kraken Blue',
-    description: 'Deep abyssal sub with twin hydro-thrusters and extra buoyancy.',
-    cost: 150,
+    name: 'Aqua Dolphin 🐬',
+    description: 'Zippy ocean speedster with bubble hydro-boosters and extra bounce!',
+    cost: 120,
     unlocked: false,
-    color: '#0284c7', // Sky Blue
-    secondaryColor: '#0369a1',
+    color: '#0ea5e9', // Ocean Sky Blue
+    secondaryColor: '#0284c7',
     accentColor: '#38bdf8',
     stats: {
       speed: 4,
@@ -35,12 +35,12 @@ export const DEFAULT_SUBMARINES: SubmarineConfig[] = [
   },
   {
     id: 'cybersub',
-    name: 'Cyber Neon',
-    description: 'Futuristic sub equipped with magnetic coin field and glowing trim.',
-    cost: 350,
+    name: 'Cosmic Sparkle ✨',
+    description: 'Magic neon sub with glowing rainbow lights and a built-in pearl magnet!',
+    cost: 280,
     unlocked: false,
-    color: '#a855f7', // Purple
-    secondaryColor: '#7e22ce',
+    color: '#c084fc', // Bright Lilac Purple
+    secondaryColor: '#9333ea',
     accentColor: '#22d3ee',
     stats: {
       speed: 4,
@@ -51,13 +51,13 @@ export const DEFAULT_SUBMARINES: SubmarineConfig[] = [
   },
   {
     id: 'titan',
-    name: 'Titan Red',
-    description: 'Heavy armored deep trench submarine with reinforced shield hull.',
-    cost: 600,
+    name: 'Captain Robo 🤖',
+    description: 'Super-strong heroic sub with tough bubble shields for giant adventures!',
+    cost: 500,
     unlocked: false,
-    color: '#ef4444', // Red
-    secondaryColor: '#b91c1c',
-    accentColor: '#f97316',
+    color: '#f43f5e', // Fun Bubble Red / Rose
+    secondaryColor: '#e11d48',
+    accentColor: '#fb923c',
     stats: {
       speed: 3,
       buoyancy: 5,
@@ -70,9 +70,9 @@ export const DEFAULT_SUBMARINES: SubmarineConfig[] = [
 export const INITIAL_ACHIEVEMENTS: Achievement[] = [
   {
     id: 'first_dive',
-    title: 'First Dive',
-    description: 'Start your first DiveFly underwater mission',
-    icon: '⚓',
+    title: 'First Splash! 🌊',
+    description: 'Start your very first submarine dive adventure',
+    icon: '🤿',
     unlocked: false,
     progress: 0,
     maxProgress: 1,
@@ -80,9 +80,9 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'depth_100',
-    title: 'Deep Trencher',
-    description: 'Reach a depth score of 100 meters',
-    icon: '🌊',
+    title: 'Deep Sea Star ⭐',
+    description: 'Dive down 100 meters into the coral ocean',
+    icon: '🌟',
     unlocked: false,
     progress: 0,
     maxProgress: 100,
@@ -90,9 +90,9 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'coin_50',
-    title: 'Pearl Hunter',
-    description: 'Collect a total of 50 sea coins/pearls',
-    icon: '🪙',
+    title: 'Pearl Collector 🦪',
+    description: 'Collect 50 shiny gold coins and magic pearls',
+    icon: '✨',
     unlocked: false,
     progress: 0,
     maxProgress: 50,
@@ -100,9 +100,9 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'mine_dodger',
-    title: 'Naval Ace',
-    description: 'Pass through 25 obstacle gaps in a single run',
-    icon: '💣',
+    title: 'Bubble Champ 🫧',
+    description: 'Pass through 25 coral gates in one awesome run',
+    icon: '🏆',
     unlocked: false,
     progress: 0,
     maxProgress: 25,
@@ -110,12 +110,13 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'sub_collector',
-    title: 'Fleet Commander',
-    description: 'Unlock 2 submarine models in the Hangar',
-    icon: '🚤',
+    title: 'Sub Fleet Hero 🚤',
+    description: 'Unlock 2 cool submarines in your Garage',
+    icon: '🚀',
     unlocked: false,
     progress: 0,
     maxProgress: 2,
     rewardCoins: 150,
   },
 ];
+

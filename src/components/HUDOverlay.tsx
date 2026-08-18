@@ -123,11 +123,11 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
 
         {/* CENTER STAGE BIG FLAPPY BIRD PIPE SCORE */}
         <div className="flex flex-col items-center justify-center -mt-0.5 shrink-0 px-1">
-          <div className="text-3xl sm:text-5xl font-black text-amber-300 font-display tracking-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] tabular-nums">
+          <div className="text-4xl sm:text-5xl font-black text-amber-300 font-display tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] tabular-nums scale-105">
             {score}
           </div>
-          <span className="text-[8px] sm:text-[9px] font-black text-cyan-300/80 font-game tracking-widest uppercase -mt-1 drop-shadow-md whitespace-nowrap">
-            PIPES
+          <span className="text-[9px] sm:text-[10px] font-black text-cyan-300 font-game tracking-widest uppercase -mt-1 drop-shadow-md whitespace-nowrap">
+            GATES 🐠
           </span>
         </div>
 
@@ -135,24 +135,24 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Shield Status Badge */}
           {hasShield && (
-            <div className="flex bg-cyan-500/20 border border-cyan-400/60 rounded-lg sm:rounded-xl px-1.5 sm:px-2 py-0.5 sm:py-1 items-center gap-1 text-cyan-300 animate-pulse">
-              <Shield className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-cyan-400" />
-              <span className="text-[8px] sm:text-[10px] font-bold font-game uppercase">SHIELD</span>
+            <div className="flex bg-cyan-400/25 border-2 border-cyan-300 rounded-xl px-2 py-1 items-center gap-1 text-cyan-200 animate-pulse shadow-md">
+              <Shield className="w-3.5 h-3.5 text-cyan-300" />
+              <span className="text-[9px] sm:text-[10px] font-black font-game uppercase">SHIELD 🛡️</span>
             </div>
           )}
 
           {/* Magnet Status Badge */}
           {isMagnetActive && (
-            <div className="flex bg-purple-500/20 border border-purple-400/60 rounded-lg sm:rounded-xl px-1.5 sm:px-2 py-0.5 sm:py-1 items-center gap-1 text-purple-300 animate-pulse">
-              <span className="text-[10px] sm:text-xs">🧲</span>
-              <span className="text-[8px] sm:text-[10px] font-bold font-game uppercase">MAGNET</span>
+            <div className="flex bg-purple-500/25 border-2 border-purple-300 rounded-xl px-2 py-1 items-center gap-1 text-purple-200 animate-pulse shadow-md">
+              <span className="text-xs">🧲</span>
+              <span className="text-[9px] sm:text-[10px] font-black font-game uppercase">MAGNET</span>
             </div>
           )}
 
           {/* Coins Counter */}
-          <div className="bg-slate-900/85 backdrop-blur-md border border-amber-500/40 rounded-xl sm:rounded-2xl h-9 sm:h-11 px-2.5 sm:px-3 flex items-center gap-1 sm:gap-1.5 shadow-lg shrink-0 whitespace-nowrap">
-            <span className="text-amber-400 text-sm sm:text-base">🪙</span>
-            <span className="text-sm sm:text-base font-bold text-amber-200 font-display tabular-nums">
+          <div className="bg-slate-900/90 backdrop-blur-md border-2 border-amber-400/50 rounded-xl sm:rounded-2xl h-9 sm:h-11 px-2.5 sm:px-3 flex items-center gap-1 sm:gap-1.5 shadow-lg shrink-0 whitespace-nowrap">
+            <span className="text-amber-400 text-base sm:text-lg">🪙</span>
+            <span className="text-sm sm:text-base font-black text-amber-300 font-display tabular-nums">
               {coins.toLocaleString()}
             </span>
           </div>
@@ -162,11 +162,11 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              soundEngine.playClick();
+              soundEngine.playBubblePop();
               onPause();
             }}
             onPointerDown={(e) => e.stopPropagation()}
-            className="w-9 h-9 sm:w-11 sm:h-11 bg-slate-800/90 hover:bg-slate-700/90 border border-slate-600 rounded-xl sm:rounded-2xl text-white shadow-lg transition active:scale-95 pointer-events-auto cursor-pointer flex items-center justify-center shrink-0"
+            className="w-9 h-9 sm:w-11 sm:h-11 bg-slate-800/90 hover:bg-slate-700 border-2 border-slate-600 rounded-xl sm:rounded-2xl text-white shadow-lg transition active:scale-95 pointer-events-auto cursor-pointer flex items-center justify-center shrink-0"
             aria-label="Pause Game"
           >
             <Pause className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-300" />
@@ -178,9 +178,9 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({
       <div className="flex flex-col items-center justify-center pointer-events-none gap-2 min-h-[44px]">
         {/* Full-Screen Touch Hint Badge for Mobile */}
         {showTouchHint && (
-          <div className="bg-slate-900/80 backdrop-blur-md border border-cyan-400/50 rounded-2xl px-4 py-2 text-cyan-200 font-bold font-game text-xs tracking-wider flex items-center gap-2 shadow-xl animate-pulse">
-            <Navigation className="w-4 h-4 text-cyan-400 animate-bounce" />
-            <span>TAP & HOLD ANYWHERE TO SWIM UP</span>
+          <div className="bg-slate-900/90 backdrop-blur-md border-2 border-cyan-400 rounded-3xl px-5 py-2.5 text-cyan-200 font-black font-game text-xs tracking-wider flex items-center gap-2 shadow-2xl shadow-cyan-500/40 animate-pulse">
+            <Navigation className="w-5 h-5 text-cyan-300 animate-bounce" />
+            <span>TAP & HOLD TO SWIM UP! 🌊</span>
           </div>
         )}
       </div>

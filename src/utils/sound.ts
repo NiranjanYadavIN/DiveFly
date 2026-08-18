@@ -238,28 +238,101 @@ class SoundEngine {
     osc.stop(now + 0.18);
   }
 
-  // Crash / Game Over
+  // Soft Bubbly Splash (Fun & friendly rather than harsh crash)
   public playCrash() {
     if (!this.soundEnabled) return;
     this.initCtx();
     if (!this.ctx) return;
 
     const now = this.ctx.currentTime;
+    // Layer 1: Water splash "Bloop"
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(200, now);
-    osc.frequency.exponentialRampToValueAtTime(40, now + 0.4);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(320, now);
+    osc.frequency.exponentialRampToValueAtTime(120, now + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(60, now + 0.35);
 
-    gain.gain.setValueAtTime(0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    gain.gain.setValueAtTime(0.14, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
 
     osc.start(now);
-    osc.stop(now + 0.4);
+    osc.stop(now + 0.35);
+
+    // Layer 2: Soft bubble pop flutter
+    try {
+      const popOsc = this.ctx.createOscillator();
+      const popGain = this.ctx.createGain();
+      popOsc.type = 'triangle';
+      popOsc.frequency.setValueAtTime(600, now + 0.05);
+      popOsc.frequency.exponentialRampToValueAtTime(200, now + 0.2);
+      popGain.gain.setValueAtTime(0.08, now + 0.05);
+      popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      popOsc.connect(popGain);
+      popGain.connect(this.ctx.destination);
+      popOsc.start(now + 0.05);
+      popOsc.stop(now + 0.2);
+    } catch {}
+  }
+
+  // Kid Celebration / Milestone Fanfare (Super rewarding dopamine chime!)
+  public playCelebration() {
+    if (!this.soundEnabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6 (Bright Major Arpeggio)
+    
+    notes.forEach((freq, index) => {
+      try {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+        const noteTime = now + index * 0.07;
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, noteTime);
+
+        gain.gain.setValueAtTime(0.12, noteTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.25);
+
+        osc.connect(gain);
+        gain.connect(this.ctx!.destination);
+
+        osc.start(noteTime);
+        osc.stop(noteTime + 0.25);
+      } catch {}
+    });
+  }
+
+  // Bubble Pop Sound
+  public playBubblePop() {
+    if (!this.soundEnabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(750, now);
+      osc.frequency.exponentialRampToValueAtTime(1400, now + 0.04);
+
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.04);
+    } catch {}
   }
 
   // Start background joyful, upbeat underwater arcade music loop

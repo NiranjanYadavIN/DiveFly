@@ -22,6 +22,19 @@ interface SpeedLine {
   alpha: number;
 }
 
+interface FloatingFeedbackText {
+  id: number;
+  text: string;
+  x: number;
+  y: number;
+  vy: number;
+  alpha: number;
+  color: string;
+  scale: number;
+  life: number;
+  maxLife: number;
+}
+
 export const GameCanvas: React.FC<GameCanvasProps> = ({
   gameId,
   gameState,
@@ -62,6 +75,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     obstacles: [] as Obstacle[],
     collectibles: [] as Collectible[],
     particles: [] as Particle[],
+    floatingTexts: [] as FloatingFeedbackText[],
     seaweeds: [] as Seaweed[],
     fishList: [] as BackgroundFish[],
     speedLines: [] as SpeedLine[],
@@ -106,6 +120,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       obstacles: [],
       collectibles: [],
       particles: [],
+      floatingTexts: [],
       seaweeds: Array.from({ length: 22 }, (_, i) => ({
         x: i * 45 + Math.random() * 20,
         height: 22 + Math.random() * 22, // Shorter, sleeker grass! (22px to 44px)
@@ -628,6 +643,23 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
               engine.maxCombo = engine.combo;
             }
 
+            // Dopamine trigger: only celebrate genuine major milestones (every 10 gates)
+            if (engine.score % 10 === 0) {
+              soundEngine.playCelebration();
+              engine.floatingTexts.push({
+                id: Date.now() + Math.random(),
+                text: `${engine.score} GATES! 🏆`,
+                x: engine.subX + 30,
+                y: engine.subY - 30,
+                vy: -1.6,
+                alpha: 1,
+                color: '#facc15',
+                scale: 1.3,
+                life: 0,
+                maxLife: 45,
+              });
+            }
+
             if (engine.sonicCharge < 100) {
               engine.sonicCharge = Math.min(100, engine.sonicCharge + 4);
             }
@@ -645,9 +677,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             const dx = engine.subX - item.x;
             const dy = engine.subY - item.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 220) {
-              item.x += (dx / dist) * 8;
-              item.y += (dy / dist) * 8;
+            if (dist < 260) {
+              item.x += (dx / dist) * 10;
+              item.y += (dy / dist) * 10;
             }
           }
 
@@ -656,28 +688,90 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
             const dy = engine.subY - item.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            // Strict physical touch collection radius (only collects when sub snout/hull touches item)
-            if (dist < item.radius + 7) {
+            // Generous & forgiving collection pickup radius (submarine core + item radius + pickup margin)
+            // Allows easy pickup when brushing right past coins/pearls
+            const pickupRadius = item.radius + 24;
+            if (dist < pickupRadius) {
               item.collected = true;
 
               if (item.type === 'coin') {
                 const addCoins = Math.round(1 * selectedSub.stats.coinMultiplier);
                 engine.coins += addCoins;
                 soundEngine.playCoin();
+                engine.floatingTexts.push({
+                  id: Date.now() + Math.random(),
+                  text: `+${addCoins} 🪙`,
+                  x: item.x,
+                  y: item.y - 15,
+                  vy: -1.5,
+                  alpha: 1,
+                  color: '#fde047',
+                  scale: 1.1,
+                  life: 0,
+                  maxLife: 30,
+                });
               } else if (item.type === 'pearl') {
                 const addCoins = Math.round(5 * selectedSub.stats.coinMultiplier);
                 engine.coins += addCoins;
                 soundEngine.playCoin();
+                engine.floatingTexts.push({
+                  id: Date.now() + Math.random(),
+                  text: `+${addCoins} 🦪`,
+                  x: item.x,
+                  y: item.y - 15,
+                  vy: -1.5,
+                  alpha: 1,
+                  color: '#f472b6',
+                  scale: 1.25,
+                  life: 0,
+                  maxLife: 35,
+                });
               } else if (item.type === 'shield') {
                 engine.shields = 1; // Strictly cap at max 1 active shield (no stacking)
                 engine.shieldTimer = 480; // 8 seconds duration at 60FPS
                 soundEngine.playPowerup();
+                engine.floatingTexts.push({
+                  id: Date.now() + Math.random(),
+                  text: 'SHIELD! 🛡️',
+                  x: item.x,
+                  y: item.y - 20,
+                  vy: -1.4,
+                  alpha: 1,
+                  color: '#38bdf8',
+                  scale: 1.2,
+                  life: 0,
+                  maxLife: 40,
+                });
               } else if (item.type === 'magnet') {
                 engine.magnetTimer = 360;
                 soundEngine.playPowerup();
+                engine.floatingTexts.push({
+                  id: Date.now() + Math.random(),
+                  text: 'MAGNET! 🧲',
+                  x: item.x,
+                  y: item.y - 20,
+                  vy: -1.4,
+                  alpha: 1,
+                  color: '#c084fc',
+                  scale: 1.2,
+                  life: 0,
+                  maxLife: 40,
+                });
               } else if (item.type === 'sonic') {
                 engine.sonicCharge = Math.min(100, engine.sonicCharge + 25);
                 soundEngine.playPowerup();
+                engine.floatingTexts.push({
+                  id: Date.now() + Math.random(),
+                  text: 'SONIC! ⚡',
+                  x: item.x,
+                  y: item.y - 20,
+                  vy: -1.4,
+                  alpha: 1,
+                  color: '#67e8f9',
+                  scale: 1.2,
+                  life: 0,
+                  maxLife: 40,
+                });
               }
 
               for (let p = 0; p < 8; p++) {
@@ -1175,6 +1269,32 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         ctx.beginPath();
         ctx.arc(px - 1.5, -3.5, 1.2, 0, Math.PI * 2);
         ctx.fill();
+
+        // Front window cartoon cheerful animated eye (Child-friendly mascot feel)
+        if (px === 16) {
+          const isBlinking = engine.frame % 180 < 8;
+          if (isBlinking) {
+            // Closed eye smile curve
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(px, -2, 3, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+          } else {
+            // Big cute expressive pupil
+            const eyeLookY = Math.max(-1.2, Math.min(1.2, engine.subVy * 0.25));
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath();
+            ctx.arc(px + 1, -2 + eyeLookY, 2.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Shiny specular highlight sparkle
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(px + 1.8, -2.8 + eyeLookY, 0.9, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
       });
 
       // 7. Bow Nose Headlight Lens
@@ -1262,6 +1382,37 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       });
 
       engine.particles = engine.particles.filter((p) => p.life < p.maxLife);
+
+      // --- 14. FLOATING CELEBRATORY TEXT FEEDBACK (Child dopamine juice) ---
+      engine.floatingTexts.forEach((ft) => {
+        ft.y += ft.vy;
+        ft.life++;
+        ft.alpha = Math.max(0, 1 - ft.life / ft.maxLife);
+
+        ctx.save();
+        ctx.globalAlpha = ft.alpha;
+        ctx.translate(ft.x, ft.y);
+        // Pop-in scale spring
+        const scaleProgress = Math.min(1, ft.life / 6);
+        const currentScale = ft.scale * (scaleProgress < 1 ? scaleProgress * 1.2 : 1);
+        ctx.scale(currentScale, currentScale);
+
+        ctx.font = '900 16px "Fredoka", "Bubblegum Sans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // High contrast dark drop outline
+        ctx.strokeStyle = '#090d16';
+        ctx.lineWidth = 4;
+        ctx.strokeText(ft.text, 0, 0);
+
+        // Bright vibrant fill
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, 0, 0);
+        ctx.restore();
+      });
+
+      engine.floatingTexts = engine.floatingTexts.filter((ft) => ft.life < ft.maxLife);
 
       animId = requestAnimationFrame(render);
     };

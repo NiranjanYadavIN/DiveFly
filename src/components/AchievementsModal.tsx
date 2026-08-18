@@ -21,12 +21,12 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <div>
-            <h2 className="text-2xl font-black font-game text-cyan-400">NAVAL BADGES</h2>
-            <p className="text-xs text-slate-400 font-display">Complete missions for coin rewards</p>
+            <h2 className="text-2xl font-black font-game text-cyan-300">SHINY BADGES 🌟</h2>
+            <p className="text-xs text-slate-300 font-display">Play games & unlock reward coins!</p>
           </div>
           <button
             onClick={() => {
-              soundEngine.playClick();
+              soundEngine.playBubblePop();
               onClose();
             }}
             className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400 hover:text-white transition"
